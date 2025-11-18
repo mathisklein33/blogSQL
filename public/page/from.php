@@ -13,7 +13,7 @@ if(isset($_POST['connection'])) {
     } else {
         $Email = htmlentities($_POST['Email'], ENT_QUOTES, "UTF-8");
         $MotDePasse = htmlentities($_POST['mdp'], ENT_QUOTES, "UTF-8");
-        $mysqli = mysqli_connect("localhost", "nom d'utilisateur", "mot de passe", "base de données");
+        $mysqli = mysqli_connect("localhost", "root", "", "blog");
         if (!$mysqli) {
             echo "Erreur de connexion à la base de données.";
         } else {
@@ -47,59 +47,25 @@ if(isset($_POST['connection'])) {
 </header>
 
 <div class="d-flex align-items-center d-flex justify-content-center p-3 border">
-<form>
-  <!-- Email input -->
-  <div data-mdb-input-init class="form-outline mb-4">
-    <input type="email" id="form2Example1" class="form-control Email" name="Email" />
-    <label class="form-label" for="form2Example1">Email address</label>
-  </div>
+    <form method="POST" action="">
 
-  <!-- Password input -->
-  <div data-mdb-input-init class="form-outline mb-4">
-    <input type="password" id="form2Example2" class="form-control" name="mdp" />
-    <label class="form-label" for="form2Example2">Password</label>
-  </div>
+        <div class="form-outline mb-4">
+            <input type="email" class="form-control" name="Email" required />
+            <label class="form-label">Email address</label>
+        </div>
 
-  <!-- 2 column grid layout for inline styling -->
-  <div class="row mb-4">
-    <div class="col d-flex justify-content-center">
-      <!-- Checkbox -->
-      <div class="form-check">
-        <input class="form-check-input" type="checkbox" value="" id="form2Example31" checked />
-        <label class="form-check-label" for="form2Example31"> Remember me </label>
-      </div>
-    </div>
+        <div class="form-outline mb-4">
+            <input type="password" class="form-control" name="mdp" required />
+            <label class="form-label">Password</label>
+        </div>
 
-    <div class="col">
-      <!-- Simple link -->
-      <a href="#!">Forgot password?</a>
-    </div>
-  </div>
+        <button type="submit" class="btn btn-primary btn-block mb-4" name="connection">
+            Sign in
+        </button>
 
-  <!-- Submit button -->
-  <button  type="button" data-mdb-button-init data-mdb-ripple-init class="connexion btn btn-primary btn-block mb-4" name="connection">Sign in</button>
+    </form>
 
-  <!-- Register buttons -->
-  <div class="text-center">
-    <p>Not a member? <a href="#!">Register</a></p>
-    <p>or sign up with:</p>
-    <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-link btn-floating mx-1">
-      <i class="fab fa-facebook-f"></i>
-    </button>
 
-    <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-link btn-floating mx-1">
-      <i class="fab fa-google"></i>
-    </button>
-
-    <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-link btn-floating mx-1">
-      <i class="fab fa-twitter"></i>
-    </button>
-
-    <button  type="button" data-mdb-button-init data-mdb-ripple-init class="btn btn-link btn-floating mx-1">
-      <i class="fab fa-github"></i>
-    </button>
-  </div>
-</form>
 </div>
 
 <footer class="border-top">
