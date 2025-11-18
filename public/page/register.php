@@ -1,36 +1,32 @@
-﻿<?php
+﻿
+<?php
+require __DIR__ . '/../../include/configPHP.php';
 session_start();
+$message = "";
 
-if(isset($_POST['connection'])) {
-    if (empty($_POST['Email'])) {
-        echo "Le champ Email est vide.";
-    } else {
+if(count($_POST) > 0) {
+    $con = mysqli_connect('127.0.0.1', 'root', '', 'blog', 3306) or die('Unable To connect');
 
-    }
-    // on vérifie maintenant si le champ "Mot de passe" n'est pas vide"
-    if (empty($_POST['mdp'])) {
-        echo "Le champ Mot de passe est vide.";
+    // Vérifier si l'email existe déjà
+    $stmt = $con->prepare("SELECT id FROM `user` WHERE email=?");
+    $stmt->bind_param("s", $_POST["userEmail"]);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    if($result->num_rows > 0) {
+        $message = "Email déjà utilisé !";
     } else {
-        $Email = htmlentities($_POST['Email'], ENT_QUOTES, "UTF-8");
-        $MotDePasse = htmlentities($_POST['mdp'], ENT_QUOTES, "UTF-8");
-        $mysqli = mysqli_connect("localhost", "root", "", "blog");
-        if (!$mysqli) {
-            echo "Erreur de connexion à la base de données.";
+        // Insérer le nouvel utilisateur
+        $stmt = $con->prepare("INSERT INTO `user` (name, email, password) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $_POST["userName"], $_POST["userEmail"], $_POST["userPassword"]);
+        if($stmt->execute()) {
+            $message = "Inscription réussie ! Vous pouvez maintenant vous connecter.";
         } else {
-            $Requete = mysqli_query($mysqli, "SELECT * FROM membres WHERE pseudo = '" . $Email . "' AND mdp = '" . $MotDePasse . "'");
-            if (mysqli_num_rows($Requete) == 0) {
-                echo "Le pseudo ou le mot de passe est incorrect, le compte n'a pas été trouvé.";
-            } else {
-                //
-                //
-                $_SESSION['pseudo'] = $Email;
-                echo "Vous êtes à présent connecté !";
-            }
+            $message = "Erreur lors de l'inscription !";
         }
     }
 }
 ?>
-
 <!doctype html>
 <html lang="fr">
 <head>
@@ -43,33 +39,26 @@ if(isset($_POST['connection'])) {
 </head>
 <body>
 <header class="d-flex align-items-center d-flex justify-content-center p-3">
-    <h2>Connection</h2>
+    <h2>inscription</h2>
 </header>
-
 <div class="d-flex align-items-center d-flex justify-content-center p-3 border">
-    <form method="POST" action="">
-
-        <div class="form-outline mb-4">
-            <input type="email" class="form-control" name="Email" required />
-            <label class="form-label">Email address</label>
+    <form action="#" method="POST">
+        <div class="p-2">
+        <input class="form-control" type="text" name="userName" placeholder="Votre nom">
         </div>
-
-        <div class="form-outline mb-4">
-            <input type="password" class="form-control" name="mdp" required />
-            <label class="form-label">Password</label>
+        <div class="p-2">
+        <input class="form-control" type="text" name="userEmail" placeholder="Votre email">
         </div>
-
-        <button type="submit" class="btn btn-primary btn-block mb-4" name="connection">
-            Sign in
-        </button>
-
-        <a href="register.php" class="btn btn-primary btn-block mb-4">
-            Register
-        </a>
+        <div class="p-2">
+        <input class="form-control" type="password" name="userPassword" placeholder="Votre mot de passe">
+            </div>
+        <div class="p-2">
+        <button class="btn btn-primary btn-block mb-4" type="submit">S'inscrire</button>
+        </div>
     </form>
-
-
 </div>
+
+<?php if($message != "") { echo "<p>$message</p>"; } ?>
 
 <footer class="border-top">
     <div class="container px-4 px-lg-5">
@@ -112,3 +101,4 @@ if(isset($_POST['connection'])) {
 <script src="public/js/scripts.js"></script>
 </body>
 </html>
+
