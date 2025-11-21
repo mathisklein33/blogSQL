@@ -1,5 +1,7 @@
 ﻿
 <?php
+$message = ""; // éviter warnings
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Connexion
@@ -29,6 +31,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $message = "Email déjà utilisé !";
         } else {
 
+            // HACHAGE DU MOT DE PASSE
+            $password_hashed = password_hash($password, PASSWORD_DEFAULT);
+
             // Rôle par défaut = 2 (user)
             $role_id = 2;
 
@@ -37,10 +42,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 INSERT INTO user (username, email, password, role_id)
                 VALUES (?, ?, ?, ?)
             ");
-            $stmt->bind_param("sssi", $username, $email, $password, $role_id);
+            $stmt->bind_param("sssi", $username, $email, $password_hashed, $role_id);
 
             if ($stmt->execute()) {
-                $message = "Inscription réussie ! Vous pouvez maintenant vous connecter.";
+                // 🚀 REDIRECTION APRÈS INSCRIPTION
+                header("Location: from.php?success=1");
+                exit;
             } else {
                 $message = "Erreur lors de l'inscription : " . $stmt->error;
             }
@@ -55,35 +62,34 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <title>Titre de la page</title>
     <link rel="stylesheet" href="public/css/styles.css">
     <script src="public/js/scripts.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-<header class="d-flex align-items-center d-flex justify-content-center p-3">
-    <h2>inscription</h2>
+<header class="d-flex align-items-center justify-content-center p-3">
+    <h2>Inscription</h2>
 </header>
-<div class="d-flex align-items-center d-flex justify-content-center p-3 border">
+
+<div class="d-flex align-items-center justify-content-center p-3 border">
     <form action="#" method="POST">
         <div class="p-2">
-        <input class="form-control" type="text" name="username" placeholder="Votre nom">
+            <input class="form-control" type="text" name="username" placeholder="Votre nom">
         </div>
         <div class="p-2">
-        <input class="form-control" type="text" name="email" placeholder="Votre email">
+            <input class="form-control" type="text" name="email" placeholder="Votre email">
         </div>
         <div class="p-2">
-        <input class="form-control" type="password" name="password" placeholder="Votre mot de passe">
-            </div>
+            <input class="form-control" type="password" name="password" placeholder="Votre mot de passe">
+        </div>
         <div class="p-2">
-        <button class="btn btn-primary btn-block mb-4" type="submit">S'inscrire</button>
+            <button class="btn btn-primary btn-block mb-4" type="submit">S'inscrire</button>
         </div>
     </form>
 </div>
 
-<?php if($message != "") { echo "<p>$message</p>"; }
+<?php
+if (!empty($message)) {
+    echo "<p class='text-center mt-3'>$message</p>";
+}
 
 include 'include/footer.php';
 ?>
-
-
-
-
