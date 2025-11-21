@@ -1,32 +1,50 @@
 ﻿<?php
-session_start();
 
-if(isset($_POST['connection'])) {
-    if (empty($_POST['Email'])) {
+
+if (isset($_POST['connection'])) {
+
+    // Vérifier l'email
+    if (empty($_POST['email'])) {
         echo "Le champ Email est vide.";
+        exit;
+    }
+
+    // Vérifier le mot de passe
+    if (empty($_POST['password'])) {
+        echo "Le champ Mot de passe est vide.";
+        exit;
+    }
+
+    // Récupération correcte
+    $email = htmlentities($_POST['email'], ENT_QUOTES, "UTF-8");
+    $password = htmlentities($_POST['password'], ENT_QUOTES, "UTF-8");
+
+    // Connexion DB
+    $mysqli = mysqli_connect("localhost", "root", "", "blog2");
+
+    if (!$mysqli) {
+        echo "Erreur de connexion à la base de données.";
+        exit;
+    }
+
+    // Requête sécurisée
+    $stmt = $mysqli->prepare("SELECT * FROM user WHERE email = ? AND password = ?");
+    $stmt->bind_param("ss", $email, $password);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // Vérification utilisateur
+    if ($result->num_rows === 0) {
+        echo "Email ou mot de passe incorrect.";
     } else {
 
-    }
-    // on vérifie maintenant si le champ "Mot de passe" n'est pas vide"
-    if (empty($_POST['mdp'])) {
-        echo "Le champ Mot de passe est vide.";
-    } else {
-        $Email = htmlentities($_POST['Email'], ENT_QUOTES, "UTF-8");
-        $MotDePasse = htmlentities($_POST['mdp'], ENT_QUOTES, "UTF-8");
-        $mysqli = mysqli_connect("localhost", "root", "", "blog");
-        if (!$mysqli) {
-            echo "Erreur de connexion à la base de données.";
-        } else {
-            $Requete = mysqli_query($mysqli, "SELECT * FROM membres WHERE pseudo = '" . $Email . "' AND mdp = '" . $MotDePasse . "'");
-            if (mysqli_num_rows($Requete) == 0) {
-                echo "Le pseudo ou le mot de passe est incorrect, le compte n'a pas été trouvé.";
-            } else {
-                //
-                //
-                $_SESSION['pseudo'] = $Email;
-                echo "Vous êtes à présent connecté !";
-            }
-        }
+        // ⚠️ SESSION DÉMARRÉE UNIQUEMENT MAINTENANT
+        session_start();
+
+        // Connexion OK
+        $_SESSION['email'] = $email;
+
+        echo "Vous êtes à présent connecté !";
     }
 }
 ?>
@@ -50,12 +68,12 @@ if(isset($_POST['connection'])) {
     <form method="POST" action="">
 
         <div class="form-outline mb-4">
-            <input type="email" class="form-control" name="Email" required />
+            <input type="email" class="form-control" name="email" required />
             <label class="form-label">Email address</label>
         </div>
 
         <div class="form-outline mb-4">
-            <input type="password" class="form-control" name="mdp" required />
+            <input type="password" class="form-control" name="password" required />
             <label class="form-label">Password</label>
         </div>
 
