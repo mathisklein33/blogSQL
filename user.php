@@ -40,6 +40,11 @@ $user = $result->fetch_assoc();
                         </div>
 
                         <a href="logout.php" class="btn btn-danger w-100 mt-3">Déconnexion</a>
+                        <?php
+                        if (!empty($_SESSION['role_id']) && $_SESSION['role_id'] == 3) {
+                            echo '<a href="admin.php" class="btn btn-primary mt-3">Accès Admin</a>';
+                        }
+                        ?>
 
                     </div>
                 </div>
