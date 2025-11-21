@@ -1,28 +1,49 @@
 ﻿
 <?php
-//require __DIR__ . 'include/configPHP.php';
-session_start();
-$message = "";
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-if(count($_POST) > 0) {
-    $con = mysqli_connect('127.0.0.1', 'root', '', 'blog', 3306) or die('Unable To connect');
+    // Connexion
+    $con = mysqli_connect("localhost", "root", "", "blog2");
 
-    // Vérifier si l'email existe déjà
-    $stmt = $con->prepare("SELECT id FROM `user` WHERE email=?");
-    $stmt->bind_param("s", $_POST["userEmail"]);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    if (!$con) {
+        die("Erreur de connexion : " . mysqli_connect_error());
+    }
 
-    if($result->num_rows > 0) {
-        $message = "Email déjà utilisé !";
+    // Récupérer les données
+    $username  = trim($_POST["username"]);
+    $email     = trim($_POST["email"]);
+    $password  = trim($_POST["password"]);
+
+    // Vérifications
+    if (empty($username) || empty($email) || empty($password)) {
+        $message = "Tous les champs doivent être remplis !";
     } else {
-        // Insérer le nouvel utilisateur
-        $stmt = $con->prepare("INSERT INTO `user` (name, email, password) VALUES (?, ?, ?)");
-        $stmt->bind_param("sss", $_POST["userName"], $_POST["userEmail"], $_POST["userPassword"]);
-        if($stmt->execute()) {
-            $message = "Inscription réussie ! Vous pouvez maintenant vous connecter.";
+
+        // Vérifier si mail existe déjà
+        $stmt = $con->prepare("SELECT id FROM user WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $message = "Email déjà utilisé !";
         } else {
-            $message = "Erreur lors de l'inscription !";
+
+            // Rôle par défaut = 2 (user)
+            $role_id = 2;
+
+            // Insérer utilisateur
+            $stmt = $con->prepare("
+                INSERT INTO user (username, email, password, role_id)
+                VALUES (?, ?, ?, ?)
+            ");
+            $stmt->bind_param("sssi", $username, $email, $password, $role_id);
+
+            if ($stmt->execute()) {
+                $message = "Inscription réussie ! Vous pouvez maintenant vous connecter.";
+            } else {
+                $message = "Erreur lors de l'inscription : " . $stmt->error;
+            }
         }
     }
 }
@@ -44,13 +65,13 @@ if(count($_POST) > 0) {
 <div class="d-flex align-items-center d-flex justify-content-center p-3 border">
     <form action="#" method="POST">
         <div class="p-2">
-        <input class="form-control" type="text" name="userName" placeholder="Votre nom">
+        <input class="form-control" type="text" name="username" placeholder="Votre nom">
         </div>
         <div class="p-2">
-        <input class="form-control" type="text" name="userEmail" placeholder="Votre email">
+        <input class="form-control" type="text" name="email" placeholder="Votre email">
         </div>
         <div class="p-2">
-        <input class="form-control" type="password" name="userPassword" placeholder="Votre mot de passe">
+        <input class="form-control" type="password" name="password" placeholder="Votre mot de passe">
             </div>
         <div class="p-2">
         <button class="btn btn-primary btn-block mb-4" type="submit">S'inscrire</button>
