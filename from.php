@@ -45,6 +45,11 @@ if (isset($_POST['connection'])) {
         $_SESSION['email'] = $email;
 
         echo "Vous êtes à présent connecté !";
+        if ($result->num_rows === 1) {
+            $_SESSION['email'] = $email;
+            header("Location: user.php");
+            exit();
+        }
     }
 }
 ?>
