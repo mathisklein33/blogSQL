@@ -25,6 +25,7 @@ $result = mysqli_query($con, $sql);
     </div>
 </section>
 
+<section>
     <div class="container py-5">
 
         <h1 class="mb-4 text-center">Articles du blog</h1>
@@ -54,7 +55,7 @@ $result = mysqli_query($con, $sql);
         </div>
 
     </div>
-
+</section>
 
 <?php
 include 'include/footer.php';
